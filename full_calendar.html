@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8' />
+  <!-- <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.10/main.min.css' /> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.10/index.global.min.js'></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        headerToolbar: {
+          right: 'dayGridMonth,timeGridWeek',
+          center: 'title',
+          left: 'prev,next today'
+        },
+        eventTimeFormat: {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        },
+        events: [
+          {
+            id: 123,
+            title: 'Event1',
+            start: '2023-12-27T14:30:00',
+            end: '2023-12-27T20:30:00',
+            backgroundColor: 'linear-gradient(90deg, pink 80%, cyan 0%)'
+          },
+          {
+            id: 456,
+            title: 'Event Bharat Test',
+            start: '2023-12-27'
+          },
+          {
+            id: 789,
+            title: 'Long Event',
+            start: '2023-12-28T15:30:00',
+            end: '2023-12-30T20:30:00',
+            backgroundColor: 'linear-gradient(90deg, pink 80%, cyan 0%)'
+          }
+        ],
+        height: 800,
+        contentHeight: 900,
+        initialView: 'timeGridWeek',
+        navLinks: true,
+        editable: true,
+        selectable: true,
+        nowIndicator: true,
+        dayMaxEvents: true,
+        allDaySlot: false,
+        dateClick: function(info) {
+          if (info.jsEvent.detail === 2) {
+            jQuery('#eventModal').modal('show');
+            setEvent()
+          }
+        },
+        eventClick: function(info) {
+          if (info.jsEvent.detail === 2) {
+            editEvent(info);
+            setEvent();
+          }
+        },
+        select: function(info){
+          setEventOnSelected(info)
+          setEvent();
+        }
+      });
+
+      function editEvent(info){
+        var title = info.event.title;
+        var startDate = info.event.start.toISOString().split('T')[0];
+        var startTime = info.event.start.toLocaleTimeString('en-US', { hour12: false });
+        var endDate = info.event.end.toISOString().split('T')[0];
+        var endTime = info.event.end.toLocaleTimeString('en-US', { hour12: false });
+        jQuery('#eventModal #eventTitle').val(title)
+        jQuery('#eventModal #eventStartDate').val(startDate)
+        jQuery('#eventModal #eventStartTime').val(startTime)
+        jQuery('#eventModal #eventEndDate').val(endDate)
+        jQuery('#eventModal #eventEndTime').val(endTime)
+        jQuery('#eventModal').modal('show');
+
+      };
+
+      function setEventOnSelected(info){
+        var startDate = info.start.toISOString().split('T')[0];
+        var startTime = info.start.toLocaleTimeString('en-US', { hour12: false });
+        var endDate = info.end.toISOString().split('T')[0];
+        var endTime = info.end.toLocaleTimeString('en-US', { hour12: false });
+        jQuery('#eventModal #eventStartDate').val(startDate)
+        jQuery('#eventModal #eventStartTime').val(startTime)
+        jQuery('#eventModal #eventEndDate').val(endDate)
+        jQuery('#eventModal #eventEndTime').val(endTime)
+        jQuery('#eventModal').modal('show');
+
+      };
+
+      function setEvent(){
+        jQuery('#addEventBtn').on('click', function() {
+          var title = jQuery('#eventTitle').val();
+          var startDate = jQuery('#eventStartDate').val();
+          var startTime = jQuery('#eventStartTime').val();
+          var endDate = jQuery('#eventEndDate').val();
+          var endTime = jQuery('#eventEndTime').val();
+          if (title && startDate && startTime && endDate && endTime) {
+          var startDate = startDate + 'T' + startTime;
+          var endDate = endDate + 'T' + endTime;
+          calendar.addEvent({
+            title: title,
+            start: startDate,
+            end: endDate,
+            allDay: false
+          });
+          jQuery('#eventModal').modal('hide');
+          jQuery('#eventModal #eventForm input').val('');
+          }
+        });
+      }
+      calendar.render();
+    });
+  </script>
+</head>
+<body>
+  <div id='calendar'></div>
+  <div class="modal" id="eventModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Add Event</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="eventForm">
+            <div class="form-group">
+              <label for="eventTitle">Event Title:</label>
+              <input type="text" class="form-control" id="eventTitle" required>
+            </div>
+            <div class="form-group">
+              <label for="eventDate">Start Date:</label>
+              <input type="date" class="form-control" id="eventStartDate" required>
+            </div>
+            <div class="form-group">
+              <label for="eventTime">Start Time:</label>
+              <input type="time" class="form-control" id="eventStartTime" required>
+            </div>
+            <div class="form-group">
+              <label for="eventDate">End Date:</label>
+              <input type="date" class="form-control" id="eventEndDate" required>
+            </div>
+            <div class="form-group">
+              <label for="eventTime">End Time:</label>
+              <input type="time" class="form-control" id="eventEndTime" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" id="addEventBtn">Add Event</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
